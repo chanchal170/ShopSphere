@@ -1,0 +1,45 @@
+@model List<Order>
+@{
+    ViewData["Title"] = "Orders - Admin";
+    string? q = ViewBag.Query;
+    OrderStatus? status = ViewBag.Status;
+}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h3 class="fw-bold mb-0">Orders</h3>
+    <form method="get" class="d-flex gap-2">
+        <input type="hidden" name="status" value="@status" />
+        <input type="text" name="q" value="@q" class="form-control" placeholder="Order no, name or phone" />
+        <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i></button>
+    </form>
+</div>
+
+<ul class="nav nav-pills mb-3">
+    <li class="nav-item"><a class="nav-link @(status == null ? "active" : "")" asp-action="Index" asp-route-q="@q">All</a></li>
+    @foreach (var s in Enum.GetValues<OrderStatus>())
+    {
+        <li class="nav-item"><a class="nav-link @(status == s ? "active" : "")" asp-action="Index" asp-route-status="@s" asp-route-q="@q">@s</a></li>
+    }
+</ul>
+
+<div class="panel p-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead><tr><th>Order</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var o in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@o.OrderNumber</td>
+                        <td>@o.ShippingName<div class="small text-muted">@o.Phone</div></td>
+                        <td>@Fmt.Date(o.CreatedAt)</td>
+                        <td>@o.Items.Sum(i => i.Quantity)</td>
+                        <td>@Fmt.Money(o.Total)</td>
+                        <td><span class="badge @Fmt.StatusClass(o.Status)">@o.Status</span></td>
+                        <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@o.Id">Open</a></td>
+                    </tr>
+                }
+                @if (!Model.Any()) { <tr><td colspan="7" class="text-center text-muted py-4">No orders found.</td></tr> }
+            </tbody>
+        </table>
+    </div>
+</div>

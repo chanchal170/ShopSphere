@@ -1,0 +1,107 @@
+@model CartSummary
+
+@if (!Model.Lines.Any())
+{
+    <div class="empty-state text-center">
+        <i class="bi bi-cart-x display-1 text-muted"></i>
+        <h4 class="mt-3">Your cart is empty</h4>
+        <p class="text-muted">Looks like you have not added anything yet.</p>
+        <a class="btn btn-primary btn-lg" asp-area="" asp-controller="Shop" asp-action="Index">Start shopping</a>
+    </div>
+}
+else
+{
+    var remaining = ShopSettings.FreeShippingThreshold - (Model.Subtotal - Model.Discount);
+    var percent = Math.Min(100, (int)((Model.Subtotal - Model.Discount) * 100 / ShopSettings.FreeShippingThreshold));
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="panel mb-3">
+                @if (remaining > 0)
+                {
+                    <div class="small mb-1">Add <strong>@Fmt.Money(remaining)</strong> more for <strong>free shipping</strong></div>
+                }
+                else
+                {
+                    <div class="small mb-1 text-success"><i class="bi bi-check-circle-fill me-1"></i>You have unlocked free shipping!</div>
+                }
+                <div class="progress" style="height:8px"><div class="progress-bar" style="width:@percent%"></div></div>
+            </div>
+
+            <div class="panel p-0">
+                @foreach (var l in Model.Lines)
+                {
+                    <div class="cart-line">
+                        <a asp-area="" asp-controller="Shop" asp-action="Details" asp-route-id="@l.ProductId" class="cart-thumb">
+                            @if (!string.IsNullOrEmpty(l.ImageUrl))
+                            {
+                                <img src="@l.ImageUrl" alt="@l.Name" />
+                            }
+                            else
+                            {
+                                <div class="product-ph" style="--h:@Fmt.Hue(l.Name)"><i class="bi bi-@l.Icon"></i></div>
+                            }
+                        </a>
+                        <div class="flex-grow-1">
+                            <a asp-area="" asp-controller="Shop" asp-action="Details" asp-route-id="@l.ProductId" class="fw-semibold">@l.Name</a>
+                            <div class="small text-muted">
+                                @Fmt.Money(l.UnitPrice)
+                                @if (l.OriginalPrice > l.UnitPrice) { <span class="text-decoration-line-through ms-1">@Fmt.Money(l.OriginalPrice)</span> }
+                            </div>
+                            <button type="button" class="btn btn-link btn-sm text-danger p-0 mt-1 btn-cart-remove" data-id="@l.ProductId"><i class="bi bi-trash me-1"></i>Remove</button>
+                        </div>
+                        <div class="qty-box">
+                            <button type="button" class="qty-btn" data-delta="-1">-</button>
+                            <input type="number" class="qty-input" data-cart="true" data-id="@l.ProductId" value="@l.Quantity" min="1" max="@Math.Min(l.Stock, ShopSettings.MaxQuantityPerItem)" />
+                            <button type="button" class="qty-btn" data-delta="1">+</button>
+                        </div>
+                        <div class="line-total">@Fmt.Money(l.LineTotal)</div>
+                    </div>
+                }
+            </div>
+
+            <div class="mt-3 d-flex justify-content-between">
+                <a class="btn btn-outline-primary" asp-area="" asp-controller="Shop" asp-action="Index"><i class="bi bi-arrow-left me-1"></i>Continue shopping</a>
+                <button type="button" id="clearCart" class="btn btn-outline-danger"><i class="bi bi-trash me-1"></i>Clear cart</button>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="panel summary-panel">
+                <h5 class="mb-3">Order summary</h5>
+
+                <label class="form-label small text-muted">Have a coupon?</label>
+                @if (Model.CouponCode != null)
+                {
+                    <div class="coupon-applied mb-3">
+                        <span><i class="bi bi-tag-fill me-1"></i><strong>@Model.CouponCode</strong> applied</span>
+                        <button type="button" id="removeCoupon" class="btn btn-sm btn-link text-danger p-0">Remove</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="input-group mb-2">
+                        <input type="text" id="couponCode" class="form-control text-uppercase" placeholder="Enter code" maxlength="20" />
+                        <button type="button" id="applyCoupon" class="btn btn-primary">Apply</button>
+                    </div>
+                    <div class="mb-3 small text-muted">Try:
+                        <a href="#" class="coupon-chip">WELCOME10</a>
+                        <a href="#" class="coupon-chip">FLAT100</a>
+                        <a href="#" class="coupon-chip">SAVE20</a>
+                    </div>
+                }
+
+                <div class="sum-row"><span>Subtotal (@Model.ItemCount items)</span><span>@Fmt.Money(Model.Subtotal)</span></div>
+                @if (Model.Discount > 0)
+                {
+                    <div class="sum-row text-success"><span>Discount</span><span>- @Fmt.Money(Model.Discount)</span></div>
+                }
+                <div class="sum-row"><span>Shipping</span><span>@(Model.Shipping == 0 ? "FREE" : Fmt.Money(Model.Shipping))</span></div>
+                <hr />
+                <div class="sum-row total"><span>Total</span><span>@Fmt.Money(Model.Total)</span></div>
+
+                <a class="btn btn-primary btn-lg w-100 mt-3" asp-area="" asp-controller="Checkout" asp-action="Index">Proceed to checkout <i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+    </div>
+}

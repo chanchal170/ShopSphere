@@ -1,0 +1,12 @@
+@model Product
+@{
+    var hue = Fmt.Hue(Model.Category?.Name ?? Model.Name);
+    var icon = Model.Category?.Icon ?? "box-seam";
+}
+<div class="img-stack">
+    <div class="product-ph" style="--h:@hue"><i class="bi bi-@icon"></i></div>
+    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+    {
+        <img src="@Model.ImageUrl" alt="@Model.Name" class="product-photo" loading="lazy" onerror="this.remove()" />
+    }
+</div>

@@ -1,0 +1,49 @@
+@model ProductListViewModel
+
+<div class="text-muted small mb-3">
+    Showing <strong>@Model.Products.Count</strong> of <strong>@Model.TotalCount</strong> products
+    @if (!string.IsNullOrWhiteSpace(Model.Query))
+    {
+        <span>for <strong>&ldquo;@Model.Query&rdquo;</strong></span>
+    }
+</div>
+
+@if (!Model.Products.Any())
+{
+    <div class="empty-state text-center">
+        <i class="bi bi-search display-3 text-muted"></i>
+        <h5 class="mt-3">No products found</h5>
+        <p class="text-muted">Check the spelling, use fewer words, or reset the filters. You can also browse a category:</p>
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            @foreach (var c in Model.Categories)
+            {
+                <a class="btn btn-sm btn-outline-primary" asp-area="" asp-controller="Shop" asp-action="Index" asp-route-category="@c.Id"><i class="bi bi-@c.Icon me-1"></i>@c.Name</a>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var p in Model.Products)
+        {
+            <div class="col-6 col-md-4">
+                @await Html.PartialAsync("_ProductCard", p, new ViewDataDictionary(ViewData) { { "InWishlist", Model.WishlistIds.Contains(p.Id) } })
+            </div>
+        }
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(Model.Page == 1 ? "disabled" : "")"><a class="page-link" href="#" data-page="@(Model.Page - 1)">&laquo;</a></li>
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.Page ? "active" : "")"><a class="page-link" href="#" data-page="@i">@i</a></li>
+                }
+                <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")"><a class="page-link" href="#" data-page="@(Model.Page + 1)">&raquo;</a></li>
+            </ul>
+        </nav>
+    }
+}

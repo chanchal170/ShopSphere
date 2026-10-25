@@ -1,0 +1,29 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var current = ViewContext.RouteData.Values["controller"]?.ToString();
+    string Active(string c) => current == c ? "active" : "";
+}
+
+<div class="container py-4">
+    <div class="row g-4">
+        <div class="col-lg-2">
+            <div class="admin-nav">
+                <div class="small text-uppercase text-muted fw-semibold mb-2 d-none d-lg-block">Admin panel</div>
+                <nav class="nav nav-pills flex-lg-column">
+                    <a class="nav-link @Active("Dashboard")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                    <a class="nav-link @Active("Products")" asp-area="Admin" asp-controller="Products" asp-action="Index"><i class="bi bi-box-seam me-2"></i>Products</a>
+                    <a class="nav-link @Active("Categories")" asp-area="Admin" asp-controller="Categories" asp-action="Index"><i class="bi bi-grid me-2"></i>Categories</a>
+                    <a class="nav-link @Active("Orders")" asp-area="Admin" asp-controller="Orders" asp-action="Index"><i class="bi bi-receipt me-2"></i>Orders</a>
+                    <a class="nav-link @Active("Coupons")" asp-area="Admin" asp-controller="Coupons" asp-action="Index"><i class="bi bi-tag me-2"></i>Coupons</a>
+                </nav>
+            </div>
+        </div>
+        <div class="col-lg-10">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}

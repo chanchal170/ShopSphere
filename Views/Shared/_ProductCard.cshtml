@@ -1,0 +1,47 @@
+@model Product
+@{
+    var inWishlist = ViewData["InWishlist"] as bool? ?? false;
+}
+<div class="product-card">
+    <a asp-area="" asp-controller="Shop" asp-action="Details" asp-route-id="@Model.Id" class="product-media">
+        <partial name="_ProductImage" model="Model" />
+        @if (Model.DiscountPercent > 0)
+        {
+            <span class="tag-discount">-@Model.DiscountPercent%</span>
+        }
+        @if (Model.Stock <= 0)
+        {
+            <span class="tag-out">Out of stock</span>
+        }
+    </a>
+
+    <button type="button" class="btn-wish @(inWishlist ? "active" : "")" data-id="@Model.Id" title="Add to wishlist">
+        <i class="bi @(inWishlist ? "bi-heart-fill" : "bi-heart")"></i>
+    </button>
+
+    <div class="product-info">
+        <div class="product-cat">@Model.Category?.Name</div>
+        <a asp-area="" asp-controller="Shop" asp-action="Details" asp-route-id="@Model.Id" class="product-name" title="@Model.Name">@Model.Name</a>
+        <div class="small">
+            <partial name="_Stars" model="Model.RatingAverage" />
+            <span class="text-muted">(@Model.ReviewCount)</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-end mt-2">
+            <div class="price">
+                <span class="now">@Fmt.Money(Model.FinalPrice)</span>
+                @if (Model.DiscountPercent > 0)
+                {
+                    <span class="was">@Fmt.Money(Model.Price)</span>
+                }
+            </div>
+            @if (Model.Stock > 0)
+            {
+                <button type="button" class="btn btn-sm btn-primary btn-add-cart" data-id="@Model.Id" title="Add to cart"><i class="bi bi-cart-plus"></i></button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-sm btn-secondary" disabled><i class="bi bi-cart-x"></i></button>
+            }
+        </div>
+    </div>
+</div>

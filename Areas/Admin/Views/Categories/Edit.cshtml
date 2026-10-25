@@ -1,0 +1,17 @@
+@model Category
+@{
+    ViewData["Title"] = "Edit category";
+}
+<div class="panel" style="max-width:640px">
+    <h4 class="fw-bold mb-4">Edit category</h4>
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger small"></span></div>
+        <div class="mb-3"><label asp-for="Icon" class="form-label"></label><input asp-for="Icon" class="form-control" /><span asp-validation-for="Icon" class="text-danger small"></span></div>
+        <div class="mb-3"><label asp-for="Description" class="form-label"></label><input asp-for="Description" class="form-control" /></div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Update</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+        </div>
+    </form>
+</div>

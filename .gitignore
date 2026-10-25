@@ -1,0 +1,9 @@
+bin/
+obj/
+*.db
+*.db-shm
+*.db-wal
+.vs/
+*.user
+wwwroot/uploads/products/*
+!wwwroot/uploads/products/.gitkeep

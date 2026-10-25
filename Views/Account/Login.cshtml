@@ -1,0 +1,67 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+<div class="auth-wrap">
+    <div class="container">
+        <div class="row justify-content-center align-items-stretch g-0 auth-card">
+            <div class="col-lg-5 auth-side d-none d-lg-flex">
+                <div>
+                    <i class="bi bi-bag-heart display-3"></i>
+                    <h2 class="fw-bold mt-3">Welcome back!</h2>
+                    <p class="opacity-75">Login to track orders, save your wishlist and checkout faster.</p>
+                    <ul class="list-unstyled small opacity-75 mb-0">
+                        <li class="mb-2"><i class="bi bi-check2-circle me-2"></i>Track every order</li>
+                        <li class="mb-2"><i class="bi bi-check2-circle me-2"></i>Save favourite products</li>
+                        <li><i class="bi bi-check2-circle me-2"></i>Exclusive coupons</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-7 auth-form">
+                <h3 class="fw-bold mb-1">Login</h3>
+                <p class="text-muted mb-4">Enter your account details</p>
+
+                <form asp-area="" asp-controller="Account" asp-action="Login" method="post">
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="you@example.com" autofocus />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Password" class="form-control" placeholder="Your password" />
+                            <button class="btn btn-outline-secondary toggle-password" type="button"><i class="bi bi-eye"></i></button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label"></label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">Login</button>
+                </form>
+
+                <div class="demo-box mt-4">
+                    <div class="small fw-semibold mb-2">Quick demo login</div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="button" class="btn btn-sm btn-outline-secondary demo-fill" data-email="admin@shopsphere.com" data-pass="Admin@123">Admin</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary demo-fill" data-email="customer@shopsphere.com" data-pass="Customer@123">Customer</button>
+                    </div>
+                </div>
+
+                <p class="text-center mt-4 mb-0">New here? <a asp-area="" asp-controller="Account" asp-action="Register">Create an account</a></p>
+            </div>
+        </div>
+    </div>
+</div>

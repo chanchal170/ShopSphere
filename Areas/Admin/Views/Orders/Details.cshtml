@@ -1,0 +1,64 @@
+@model Order
+@{
+    ViewData["Title"] = "Order " + Model.OrderNumber;
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-0">Order @Model.OrderNumber</h3>
+        <div class="text-muted small">Placed on @Fmt.Stamp(Model.CreatedAt) by @(Model.User?.FullName ?? "customer")</div>
+    </div>
+    <a class="btn btn-outline-secondary" asp-action="Index"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="panel p-0">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>Product</th><th class="text-end">Price</th><th class="text-center">Qty</th><th class="text-end">Total</th></tr></thead>
+                <tbody>
+                    @foreach (var i in Model.Items)
+                    {
+                        <tr><td>@i.ProductName</td><td class="text-end">@Fmt.Money(i.UnitPrice)</td><td class="text-center">@i.Quantity</td><td class="text-end">@Fmt.Money(i.LineTotal)</td></tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr><td colspan="3" class="text-end">Subtotal</td><td class="text-end">@Fmt.Money(Model.Subtotal)</td></tr>
+                    @if (Model.Discount > 0) { <tr><td colspan="3" class="text-end text-success">Coupon (@Model.CouponCode)</td><td class="text-end text-success">- @Fmt.Money(Model.Discount)</td></tr> }
+                    <tr><td colspan="3" class="text-end">Shipping</td><td class="text-end">@(Model.Shipping == 0 ? "FREE" : Fmt.Money(Model.Shipping))</td></tr>
+                    <tr class="fw-bold"><td colspan="3" class="text-end">Total</td><td class="text-end">@Fmt.Money(Model.Total)</td></tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="panel mb-3">
+            <h6>Update status</h6>
+            <div class="mb-2">Current: <span class="badge @Fmt.StatusClass(Model.Status)">@Model.Status</span></div>
+            @if (Model.Status != OrderStatus.Cancelled && Model.Status != OrderStatus.Delivered)
+            {
+                <form asp-action="UpdateStatus" asp-route-id="@Model.Id" method="post">
+                    <select name="status" class="form-select mb-2">
+                        @foreach (var s in Enum.GetValues<OrderStatus>())
+                        {
+                            <option value="@s" selected="@(s == Model.Status)">@s</option>
+                        }
+                    </select>
+                    <button class="btn btn-primary w-100" type="submit">Save status</button>
+                </form>
+                <div class="small text-muted mt-2">Choosing Cancelled returns the stock automatically.</div>
+            }
+            else
+            {
+                <div class="small text-muted">This order is final and cannot be changed.</div>
+            }
+        </div>
+        <div class="panel">
+            <h6>Customer &amp; delivery</h6>
+            <div>@Model.ShippingName</div>
+            <div class="small text-muted">@Model.User?.Email</div>
+            <div class="small text-muted">@Model.Phone</div>
+            <div class="small text-muted">@Model.Address, @Model.City</div>
+            <div class="small text-muted mt-2">Payment: @Model.PaymentMethod</div>
+        </div>
+    </div>
+</div>

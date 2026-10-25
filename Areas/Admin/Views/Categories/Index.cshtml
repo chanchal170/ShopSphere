@@ -1,0 +1,40 @@
+@model List<Category>
+@{
+    ViewData["Title"] = "Categories - Admin";
+}
+<h3 class="fw-bold mb-3">Categories</h3>
+
+<div class="panel mb-4">
+    <h6 class="mb-3">Add category</h6>
+    <form asp-action="Create" method="post">
+        <div class="row g-2">
+            <div class="col-md-3"><input name="Name" class="form-control" placeholder="Name" required maxlength="60" /></div>
+            <div class="col-md-3"><input name="Icon" class="form-control" placeholder="Icon (e.g. laptop)" required maxlength="40" value="box-seam" /></div>
+            <div class="col-md-4"><input name="Description" class="form-control" placeholder="Short description" maxlength="200" /></div>
+            <div class="col-md-2"><button class="btn btn-primary w-100" type="submit">Add</button></div>
+        </div>
+        <div class="small text-muted mt-2">Icon names come from <a href="https://icons.getbootstrap.com" target="_blank">Bootstrap Icons</a>.</div>
+    </form>
+</div>
+
+<div class="panel p-0">
+    <table class="table align-middle mb-0">
+        <thead><tr><th>Category</th><th>Description</th><th>Products</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td><i class="bi bi-@c.Icon me-2"></i><strong>@c.Name</strong></td>
+                    <td class="text-muted">@c.Description</td>
+                    <td>@c.Products.Count</td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@c.Id"><i class="bi bi-pencil"></i></a>
+                        <form asp-action="Delete" asp-route-id="@c.Id" method="post" class="d-inline" data-confirm="Delete category '@c.Name'?">
+                            <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,82 @@
+@model Order
+@{
+    ViewData["Title"] = "Order " + Model.OrderNumber;
+    var steps = new[] { OrderStatus.Pending, OrderStatus.Processing, OrderStatus.Shipped, OrderStatus.Delivered };
+    var current = Array.IndexOf(steps, Model.Status);
+}
+<div class="page-header">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h1 class="fw-bold mb-1">Order @Model.OrderNumber</h1>
+            <p class="mb-0 opacity-75">Placed on @Fmt.Stamp(Model.CreatedAt)</p>
+        </div>
+        <a class="btn btn-light" asp-area="" asp-controller="Orders" asp-action="Index"><i class="bi bi-arrow-left me-1"></i>All orders</a>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- tracker -->
+    <div class="panel mb-4">
+        @if (Model.Status == OrderStatus.Cancelled)
+        {
+            <div class="text-center text-danger"><i class="bi bi-x-circle display-5"></i><h5 class="mt-2 mb-0">This order was cancelled</h5></div>
+        }
+        else
+        {
+            <div class="tracker">
+                @for (int i = 0; i < steps.Length; i++)
+                {
+                    <div class="tstep @(i <= current ? "done" : "")">
+                        <div class="dot"><i class="bi @(i <= current ? "bi-check-lg" : "bi-circle")"></i></div>
+                        <div class="small fw-semibold">@steps[i]</div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="panel p-0">
+                <table class="table align-middle mb-0">
+                    <thead><tr><th>Product</th><th class="text-end">Price</th><th class="text-center">Qty</th><th class="text-end">Total</th></tr></thead>
+                    <tbody>
+                        @foreach (var i in Model.Items)
+                        {
+                            <tr>
+                                <td><a asp-area="" asp-controller="Shop" asp-action="Details" asp-route-id="@i.ProductId">@i.ProductName</a></td>
+                                <td class="text-end">@Fmt.Money(i.UnitPrice)</td>
+                                <td class="text-center">@i.Quantity</td>
+                                <td class="text-end">@Fmt.Money(i.LineTotal)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="panel mb-3">
+                <h6>Delivery address</h6>
+                <div>@Model.ShippingName</div>
+                <div class="text-muted small">@Model.Address, @Model.City</div>
+                <div class="text-muted small">Phone: @Model.Phone</div>
+                <div class="text-muted small">Payment: @Model.PaymentMethod</div>
+            </div>
+            <div class="panel">
+                <h6>Summary</h6>
+                <div class="sum-row"><span>Subtotal</span><span>@Fmt.Money(Model.Subtotal)</span></div>
+                @if (Model.Discount > 0) { <div class="sum-row text-success"><span>Coupon (@Model.CouponCode)</span><span>- @Fmt.Money(Model.Discount)</span></div> }
+                <div class="sum-row"><span>Shipping</span><span>@(Model.Shipping == 0 ? "FREE" : Fmt.Money(Model.Shipping))</span></div>
+                <hr />
+                <div class="sum-row total"><span>Total</span><span>@Fmt.Money(Model.Total)</span></div>
+
+                @if (Model.CanCancel)
+                {
+                    <form asp-area="" asp-controller="Orders" asp-action="Cancel" asp-route-id="@Model.Id" method="post" data-confirm="Cancel this order?">
+                        <button type="submit" class="btn btn-outline-danger w-100 mt-3"><i class="bi bi-x-circle me-1"></i>Cancel order</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

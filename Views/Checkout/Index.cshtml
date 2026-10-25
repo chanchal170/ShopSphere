@@ -1,0 +1,89 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+    var cart = Model.Cart!;
+}
+<div class="page-header">
+    <div class="container"><h1 class="fw-bold mb-0"><i class="bi bi-credit-card me-2"></i>Checkout</h1></div>
+</div>
+
+<div class="container py-4">
+    <form asp-area="" asp-controller="Checkout" asp-action="Place" method="post">
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="panel mb-4">
+                    <h5 class="mb-3"><i class="bi bi-geo-alt me-2"></i>Delivery details</h5>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="ShippingName" class="form-label"></label>
+                            <input asp-for="ShippingName" class="form-control" />
+                            <span asp-validation-for="ShippingName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label">Mobile number</label>
+                            <input asp-for="Phone" class="form-control" inputmode="numeric" maxlength="10" placeholder="10 digit number" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label"></label>
+                            <textarea asp-for="Address" rows="3" class="form-control" placeholder="House no, street, area"></textarea>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="City" class="form-label"></label>
+                            <input asp-for="City" class="form-control" />
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h5 class="mb-3"><i class="bi bi-wallet2 me-2"></i>Payment method</h5>
+                    <div class="pay-options">
+                        <label class="pay-option">
+                            <input type="radio" name="PaymentMethod" value="COD" @(Model.PaymentMethod == "COD" ? "checked" : "") />
+                            <span><i class="bi bi-cash-coin"></i><strong>Cash on delivery</strong><small>Pay when you receive</small></span>
+                        </label>
+                        <label class="pay-option">
+                            <input type="radio" name="PaymentMethod" value="UPI" @(Model.PaymentMethod == "UPI" ? "checked" : "") />
+                            <span><i class="bi bi-phone"></i><strong>UPI</strong><small>Demo only</small></span>
+                        </label>
+                        <label class="pay-option">
+                            <input type="radio" name="PaymentMethod" value="Card" @(Model.PaymentMethod == "Card" ? "checked" : "") />
+                            <span><i class="bi bi-credit-card-2-front"></i><strong>Card</strong><small>Demo only</small></span>
+                        </label>
+                    </div>
+                    <span asp-validation-for="PaymentMethod" class="text-danger small"></span>
+                    <div class="small text-muted mt-2"><i class="bi bi-info-circle me-1"></i>This is a student project - no real payment is taken.</div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="panel summary-panel">
+                    <h5 class="mb-3">Your order</h5>
+                    @foreach (var l in cart.Lines)
+                    {
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span>@l.Name <span class="text-muted">x @l.Quantity</span></span>
+                            <span>@Fmt.Money(l.LineTotal)</span>
+                        </div>
+                    }
+                    <hr />
+                    <div class="sum-row"><span>Subtotal</span><span>@Fmt.Money(cart.Subtotal)</span></div>
+                    @if (cart.Discount > 0)
+                    {
+                        <div class="sum-row text-success"><span>Coupon (@cart.CouponCode)</span><span>- @Fmt.Money(cart.Discount)</span></div>
+                    }
+                    <div class="sum-row"><span>Shipping</span><span>@(cart.Shipping == 0 ? "FREE" : Fmt.Money(cart.Shipping))</span></div>
+                    <hr />
+                    <div class="sum-row total"><span>Total</span><span>@Fmt.Money(cart.Total)</span></div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mt-3"><i class="bi bi-lock me-1"></i>Place order</button>
+                    <a class="btn btn-link w-100 mt-1" asp-area="" asp-controller="Cart" asp-action="Index">Back to cart</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

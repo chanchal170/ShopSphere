@@ -1,0 +1,75 @@
+@model ProductListViewModel
+@{
+    ViewData["Title"] = "Shop";
+}
+<div class="page-header">
+    <div class="container">
+        <h1 class="fw-bold mb-1">Shop all products</h1>
+        <p class="mb-0 opacity-75">Search, filter and sort - results update instantly</p>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- FILTERS -->
+        <div class="col-lg-3">
+            <div class="panel filter-panel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0"><i class="bi bi-funnel me-1"></i>Filters</h6>
+                    <button type="button" id="resetFilters" class="btn btn-sm btn-link p-0">Reset</button>
+                </div>
+
+                <label class="form-label small text-muted">Search</label>
+                <div class="input-group mb-4">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="searchBox" class="form-control" placeholder="Try: wireless headphones" value="@Model.Query" autocomplete="off" />
+                </div>
+
+                <label class="form-label small text-muted">Category</label>
+                <div class="mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input filter-cat" type="radio" name="cat" id="cat0" value="" @(Model.CategoryId == null ? "checked" : "") />
+                        <label class="form-check-label" for="cat0">All categories</label>
+                    </div>
+                    @foreach (var c in Model.Categories)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input filter-cat" type="radio" name="cat" id="cat@(c.Id)" value="@c.Id" @(Model.CategoryId == c.Id ? "checked" : "") />
+                            <label class="form-check-label" for="cat@(c.Id)"><i class="bi bi-@c.Icon me-1"></i>@c.Name</label>
+                        </div>
+                    }
+                </div>
+
+                <label class="form-label small text-muted">Price range (₹)</label>
+                <div class="row g-2">
+                    <div class="col-6"><input type="number" min="0" id="minPrice" class="form-control" placeholder="Min" value="@Model.Min" /></div>
+                    <div class="col-6"><input type="number" min="0" id="maxPrice" class="form-control" placeholder="Max" value="@Model.Max" /></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-end mb-3">
+                <select id="sortBy" class="form-select w-auto">
+                    <option value="relevance" selected="@(Model.Sort == "relevance")">Best match</option>
+                    <option value="newest" selected="@(Model.Sort == "newest")">Newest first</option>
+                    <option value="price_asc" selected="@(Model.Sort == "price_asc")">Price: low to high</option>
+                    <option value="price_desc" selected="@(Model.Sort == "price_desc")">Price: high to low</option>
+                    <option value="rating" selected="@(Model.Sort == "rating")">Top rated</option>
+                    <option value="discount" selected="@(Model.Sort == "discount")">Biggest discount</option>
+                    <option value="name" selected="@(Model.Sort == "name")">Name A-Z</option>
+                </select>
+            </div>
+
+            <div id="productResults" data-url="@Url.Action("List", "Shop")">
+                <partial name="_ProductGrid" model="Model" />
+            </div>
+        </div>
+    </div>
+</div>
+<div id="loadingBar" class="loading-bar d-none"></div>
+
+@section Scripts {
+    <script>initShop();</script>
+}

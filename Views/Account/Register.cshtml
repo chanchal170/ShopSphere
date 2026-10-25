@@ -1,0 +1,70 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Sign up";
+}
+<div class="auth-wrap">
+    <div class="container">
+        <div class="row justify-content-center align-items-stretch g-0 auth-card">
+            <div class="col-lg-5 auth-side d-none d-lg-flex">
+                <div>
+                    <i class="bi bi-person-plus display-3"></i>
+                    <h2 class="fw-bold mt-3">Join ShopSphere</h2>
+                    <p class="opacity-75">Create your free account in less than a minute and get <strong>10% off</strong> your first order with code WELCOME10.</p>
+                </div>
+            </div>
+            <div class="col-lg-7 auth-form">
+                <h3 class="fw-bold mb-1">Create account</h3>
+                <p class="text-muted mb-4">It is free and takes a minute</p>
+
+                <form asp-area="" asp-controller="Account" asp-action="Register" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input asp-for="FullName" class="form-control" placeholder="Your name" />
+                        </div>
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="you@example.com" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Password" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input asp-for="Password" class="form-control" id="regPassword" />
+                                <button class="btn btn-outline-secondary toggle-password" type="button"><i class="bi bi-eye"></i></button>
+                            </div>
+                            <div class="strength mt-2"><div id="strengthBar"></div></div>
+                            <small id="strengthText" class="text-muted"></small><br />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                <input asp-for="ConfirmPassword" class="form-control" />
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="small text-muted mb-3">Password needs at least 6 characters including a number.</div>
+
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">Create account</button>
+                </form>
+
+                <p class="text-center mt-4 mb-0">Already have an account? <a asp-area="" asp-controller="Account" asp-action="Login">Login</a></p>
+            </div>
+        </div>
+    </div>
+</div>

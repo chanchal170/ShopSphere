@@ -1,0 +1,148 @@
+@model ProductDetailsViewModel
+@{
+    var p = Model.Product;
+    ViewData["Title"] = p.Name;
+    var maxQty = Math.Min(p.Stock, ShopSettings.MaxQuantityPerItem);
+}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-area="" asp-controller="Shop" asp-action="Index">Shop</a></li>
+            <li class="breadcrumb-item"><a asp-area="" asp-controller="Shop" asp-action="Index" asp-route-category="@p.CategoryId">@p.Category?.Name</a></li>
+            <li class="breadcrumb-item active">@p.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5">
+        <div class="col-md-6">
+            <div class="detail-media">
+                <partial name="_ProductImage" model="p" />
+                @if (p.DiscountPercent > 0) { <span class="tag-discount">-@p.DiscountPercent%</span> }
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <span class="badge bg-primary-subtle text-primary-emphasis mb-2"><i class="bi bi-@p.Category?.Icon me-1"></i>@p.Category?.Name</span>
+            <h1 class="fw-bold h2">@p.Name</h1>
+
+            <div class="mb-3">
+                <partial name="_Stars" model="p.RatingAverage" />
+                <span class="ms-1 fw-semibold">@p.RatingAverage.ToString("0.0")</span>
+                <span class="text-muted">(@p.ReviewCount reviews)</span>
+            </div>
+
+            <div class="price price-lg mb-3">
+                <span class="now">@Fmt.Money(p.FinalPrice)</span>
+                @if (p.DiscountPercent > 0)
+                {
+                    <span class="was">@Fmt.Money(p.Price)</span>
+                    <span class="badge bg-success ms-2">You save @Fmt.Money(p.Price - p.FinalPrice)</span>
+                }
+            </div>
+
+            <p class="text-muted">@(string.IsNullOrWhiteSpace(p.Description) ? "No description available." : p.Description)</p>
+
+            @if (p.Stock <= 0)
+            {
+                <div class="alert alert-danger py-2"><i class="bi bi-x-circle me-1"></i>Out of stock</div>
+            }
+            else
+            {
+                <div class="mb-3 small @(p.Stock <= 5 ? "text-danger fw-semibold" : "text-success")">
+                    <i class="bi bi-check-circle me-1"></i>@(p.Stock <= 5 ? $"Hurry! Only {p.Stock} left" : "In stock")
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                    <div class="qty-box">
+                        <button type="button" class="qty-btn" data-delta="-1">-</button>
+                        <input type="number" id="detailQty" class="qty-input" value="1" min="1" max="@maxQty" />
+                        <button type="button" class="qty-btn" data-delta="1">+</button>
+                    </div>
+                    <button class="btn btn-primary btn-lg btn-add-cart" data-id="@p.Id" data-qty-input="#detailQty"><i class="bi bi-cart-plus me-1"></i>Add to cart</button>
+                    <button class="btn btn-outline-primary btn-lg btn-buy-now" data-id="@p.Id" data-qty-input="#detailQty">Buy now</button>
+                </div>
+            }
+
+            <button type="button" class="btn btn-outline-secondary btn-wish-text btn-wish @(Model.InWishlist ? "active" : "")" data-id="@p.Id">
+                <i class="bi @(Model.InWishlist ? "bi-heart-fill" : "bi-heart") me-1"></i><span>@(Model.InWishlist ? "In wishlist" : "Add to wishlist")</span>
+            </button>
+
+            <ul class="list-unstyled small text-muted mt-4 mb-0">
+                <li class="mb-1"><i class="bi bi-truck me-2"></i>Free shipping on orders above ₹500</li>
+                <li class="mb-1"><i class="bi bi-arrow-repeat me-2"></i>Cancel anytime before it ships</li>
+                <li><i class="bi bi-shield-check me-2"></i>Secure checkout</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <section class="mt-5">
+        <h4 class="fw-bold mb-4">Customer reviews</h4>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="panel">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <h6 class="mb-3">@(Model.MyReview == null ? "Write a review" : "Update your review")</h6>
+                        <form asp-action="AddReview" asp-controller="Shop" asp-area="" method="post">
+                            <input type="hidden" name="ProductId" value="@p.Id" />
+                            <div class="star-input mb-2">
+                                @for (int i = 5; i >= 1; i--)
+                                {
+                                    <input type="radio" name="Rating" id="star@(i)" value="@i" @(Model.MyReview?.Rating == i ? "checked" : "") />
+                                    <label for="star@(i)" title="@i stars"><i class="bi bi-star-fill"></i></label>
+                                }
+                            </div>
+                            <textarea name="Comment" rows="3" maxlength="500" class="form-control mb-3" placeholder="Share your experience (optional)">@Model.MyReview?.Comment</textarea>
+                            <button class="btn btn-primary w-100" type="submit">Submit review</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p class="mb-3">Please login to write a review.</p>
+                        <a class="btn btn-primary" asp-area="" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path.Value">Login</a>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-8">
+                @if (!Model.Reviews.Any())
+                {
+                    <div class="empty-state text-center"><i class="bi bi-chat-square-text display-4 text-muted"></i><p class="mt-2 mb-0 text-muted">No written reviews yet. Be the first!</p></div>
+                }
+                else
+                {
+                    foreach (var r in Model.Reviews)
+                    {
+                        <div class="review">
+                            <div class="avatar">@r.UserName.Substring(0, 1).ToUpper()</div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <strong>@r.UserName</strong>
+                                    <small class="text-muted">@Fmt.Date(r.CreatedAt)</small>
+                                </div>
+                                <partial name="_Stars" model="(double)r.Rating" />
+                                @if (!string.IsNullOrWhiteSpace(r.Comment)) { <p class="mb-0 mt-1">@r.Comment</p> }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+
+    @if (Model.Related.Any())
+    {
+        <section class="mt-5">
+            <h4 class="fw-bold mb-4">You may also like</h4>
+            <div class="row g-4">
+                @foreach (var rp in Model.Related)
+                {
+                    <div class="col-6 col-md-3">
+                        @await Html.PartialAsync("_ProductCard", rp, new ViewDataDictionary(ViewData) { { "InWishlist", Model.WishlistIds.Contains(rp.Id) } })
+                    </div>
+                }
+            </div>
+        </section>
+    }
+</div>
